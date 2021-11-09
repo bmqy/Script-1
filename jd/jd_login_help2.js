@@ -30,48 +30,48 @@ http-response ^https?:\/\/plogin\.m\.jd\.com\/login\/login tag=京东登陆辅�
 
 
  */
-const $ = new API('jd_ck_remark')
+const $ = new API('jd_ck_remark');
 
-const APIKey = 'CookiesJD'
-const CacheKey = `#${APIKey}`
-const remark_key = `remark`
-const searchKey = 'keyword'
-$.url = $request.url
-$.html = $response.body
+const APIKey = 'CookiesJD';
+const CacheKey = `#${APIKey}`;
+const remark_key = `remark`;
+const searchKey = 'keyword';
+$.url = $request.url;
+$.html = $response.body;
 
-const isJS = $.url.match(/^https:\/\/.*\.com\/.*(\.js)/)
+const isJS = $.url.match(/^https:\/\/.*\.com\/.*(\.js)/);
 try {
-  if (!$.html.includes || !$.html.includes('</html>')) $.done({ body: $.html })
+  if (!$.html.includes || !$.html.includes('</html>')) $.done({ body: $.html });
 } catch (e) {
-  $.done()
+  $.done();
 }
-const isLogin = $.url.indexOf('/login/login') > -1
-$.headers = $response.headers
+const isLogin = $.url.indexOf('/login/login') > -1;
+$.headers = $response.headers;
 
 // 处理各页面 rem 兼容
 function getRem(r) {
-  return `${r * 25}vw`
+  return `${r * 25}vw`;
 }
 
 // 初始化 boxjs 数据
 function initBoxJSData() {
-  const CookiesJD = JSON.parse($.read(CacheKey) || '[]')
+  const CookiesJD = JSON.parse($.read(CacheKey) || '[]');
 
-  let cookiesRemark = JSON.parse($.read(remark_key) || '[]')
-  const keyword = ($.read(searchKey) || '').split(',')
+  let cookiesRemark = JSON.parse($.read(remark_key) || '[]');
+  const keyword = ($.read(searchKey) || '').split(',');
 
-  const cookiesFormat = {}
+  const cookiesFormat = {};
 
   cookiesRemark.forEach((item) => {
-    cookiesFormat[item.username] = item
-  })
+    cookiesFormat[item.username] = item;
+  });
 
   cookiesRemark = CookiesJD.map((item) => ({
     ...item,
     username: item.userName,
     nickname: item.userName,
     ...cookiesFormat[item.userName],
-  })).filter((item) => !!item.cookie)
+  })).filter((item) => !!item.cookie);
 
   cookiesRemark = cookiesRemark.filter((item, index) => {
     return keyword[0]
@@ -79,13 +79,13 @@ function initBoxJSData() {
           keyword.indexOf(item.username) > -1 ||
           keyword.indexOf(item.nickname) > -1 ||
           keyword.indexOf(item.status) > -1
-      : true
-  })
+      : true;
+  });
 
-  return cookiesRemark
+  return cookiesRemark;
 }
 
-const cookiesRemark = initBoxJSData()
+const cookiesRemark = initBoxJSData();
 
 // 生成标签样式
 function createStyle() {
@@ -413,14 +413,14 @@ function createStyle() {
     display: none !important;
   }
 </style>
-`
+`;
 }
 
 const accounts = cookiesRemark
   .map((item) => {
-    const status = item.status === '正常'
-    const className = item.wskey ? 'ant-tag-cyan' : 'ant-tag-magenta'
-    const tag = item.wskey ? 'APP' : 'WEB'
+    const status = item.status === '正常';
+    const className = item.wskey ? 'ant-tag-cyan' : 'ant-tag-magenta';
+    const tag = item.wskey ? 'APP' : 'WEB';
     return `
 <div class="cus-avatar" data-value="${item.mobile || ''}" data-name="${
       item.username
@@ -435,9 +435,9 @@ const accounts = cookiesRemark
   </div>
   <span class="ant-tag ${className}">${tag}</span>
   <span class="cus-icon ${status ? '' : 'cus-err'}"></span>
-</div>`
+</div>`;
   })
-  .join('')
+  .join('');
 
 // 生成 html 标签
 function createHTML() {
@@ -486,10 +486,10 @@ function createHTML() {
    <img  src="https://raw.githubusercontent.com/chavyleung/scripts/master/BOXJS.png" />
   </div>
 </div>
-  `
+  `;
 }
 
-const fillMobile = `<span class="abtn border-btn iconfont icon-shouye" id="fill-input"></span>`
+const fillMobile = `<span class="abtn border-btn iconfont icon-shouye" id="fill-input"></span>`;
 
 // 生成脚本标签
 function createScript() {
@@ -819,13 +819,13 @@ function createScript() {
     document.body.removeChild(_input);
   }
 </script>
-  `
+  `;
 }
 
-;(async () => {
-  const infuseStyles = createStyle()
-  const infuseScript = createScript()
-  const infuseHTML = createHTML()
+(async () => {
+  const infuseStyles = createStyle();
+  const infuseScript = createScript();
+  const infuseHTML = createHTML();
 
   function getInfuse() {
     return isJS
@@ -839,34 +839,34 @@ ${infuseScript.replace('<script>', '').replace('</script>', '')}
 ${infuseStyles}
 ${infuseHTML}
 ${infuseScript}
-`
+`;
   }
 
-  const infuseText = getInfuse()
+  const infuseText = getInfuse();
   try {
     $.html = isJS
       ? $.html + `\n${infuseText}`
-      : $.html.replace(/(<\/html>)/, `${infuseText} </html>`)
+      : $.html.replace(/(<\/html>)/, `${infuseText} </html>`);
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 })()
   .catch((error) => {
-    console.log(error)
+    console.log(error);
   })
   .finally(() => {
-    $.headers = { ...$.headers, 'Cache-Control': 'no-cache' }
-    $.done({ body: $.html, headers: $.headers })
-  })
+    $.headers = { ...$.headers, 'Cache-Control': 'no-cache' };
+    $.done({ body: $.html, headers: $.headers });
+  });
 
 function ENV() {
-  const isQX = typeof $task !== 'undefined'
-  const isLoon = typeof $loon !== 'undefined'
-  const isSurge = typeof $httpClient !== 'undefined' && !isLoon
-  const isJSBox = typeof require == 'function' && typeof $jsbox != 'undefined'
-  const isNode = typeof require == 'function' && !isJSBox
-  const isRequest = typeof $request !== 'undefined'
-  const isScriptable = typeof importModule !== 'undefined'
+  const isQX = typeof $task !== 'undefined';
+  const isLoon = typeof $loon !== 'undefined';
+  const isSurge = typeof $httpClient !== 'undefined' && !isLoon;
+  const isJSBox = typeof require == 'function' && typeof $jsbox != 'undefined';
+  const isNode = typeof require == 'function' && !isJSBox;
+  const isRequest = typeof $request !== 'undefined';
+  const isScriptable = typeof importModule !== 'undefined';
   return {
     isQX,
     isLoon,
@@ -875,14 +875,14 @@ function ENV() {
     isJSBox,
     isRequest,
     isScriptable,
-  }
+  };
 }
 
 function HTTP(defaultOptions = { baseURL: '' }) {
-  const { isQX, isLoon, isSurge, isScriptable, isNode } = ENV()
-  const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH']
+  const { isQX, isLoon, isSurge, isScriptable, isNode } = ENV();
+  const methods = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'PATCH'];
   const URL_REGEX =
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
   function send(method, options) {
     options =
@@ -890,19 +890,19 @@ function HTTP(defaultOptions = { baseURL: '' }) {
         ? {
             url: options,
           }
-        : options
-    const baseURL = defaultOptions.baseURL
+        : options;
+    const baseURL = defaultOptions.baseURL;
     if (baseURL && !URL_REGEX.test(options.url || '')) {
-      options.url = baseURL ? baseURL + options.url : options.url
+      options.url = baseURL ? baseURL + options.url : options.url;
     }
     if (options.body && options.headers && !options.headers['Content-Type']) {
-      options.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+      options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
     }
     options = {
       ...defaultOptions,
       ...options,
-    }
-    const timeout = options.timeout
+    };
+    const timeout = options.timeout;
     const events = {
       ...{
         onRequest: () => {},
@@ -910,34 +910,34 @@ function HTTP(defaultOptions = { baseURL: '' }) {
         onTimeout: () => {},
       },
       ...options.events,
-    }
+    };
 
-    events.onRequest(method, options)
+    events.onRequest(method, options);
 
-    let worker
+    let worker;
     if (isQX) {
       worker = $task.fetch({
         method,
         ...options,
-      })
+      });
     } else if (isLoon || isSurge || isNode) {
       worker = new Promise((resolve, reject) => {
-        const request = isNode ? require('request') : $httpClient
+        const request = isNode ? require('request') : $httpClient;
         request[method.toLowerCase()](options, (err, response, body) => {
-          if (err) reject(err)
+          if (err) reject(err);
           else
             resolve({
               statusCode: response.status || response.statusCode,
               headers: response.headers,
               body,
-            })
-        })
-      })
+            });
+        });
+      });
     } else if (isScriptable) {
-      const request = new Request(options.url)
-      request.method = method
-      request.headers = options.headers
-      request.body = options.body
+      const request = new Request(options.url);
+      request.method = method;
+      request.headers = options.headers;
+      request.body = options.body;
       worker = new Promise((resolve, reject) => {
         request
           .loadString()
@@ -946,87 +946,87 @@ function HTTP(defaultOptions = { baseURL: '' }) {
               statusCode: request.response.statusCode,
               headers: request.response.headers,
               body,
-            })
+            });
           })
-          .catch((err) => reject(err))
-      })
+          .catch((err) => reject(err));
+      });
     }
 
-    let timeoutid
+    let timeoutid;
     const timer = timeout
       ? new Promise((_, reject) => {
           timeoutid = setTimeout(() => {
-            events.onTimeout()
+            events.onTimeout();
             return reject(
-              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`
-            )
-          }, timeout)
+              `${method} URL: ${options.url} exceeds the timeout ${timeout} ms`,
+            );
+          }, timeout);
         })
-      : null
+      : null;
 
     return (
       timer
         ? Promise.race([timer, worker]).then((res) => {
-            clearTimeout(timeoutid)
-            return res
+            clearTimeout(timeoutid);
+            return res;
           })
         : worker
-    ).then((resp) => events.onResponse(resp))
+    ).then((resp) => events.onResponse(resp));
   }
 
-  const http = {}
+  const http = {};
   methods.forEach(
     (method) =>
-      (http[method.toLowerCase()] = (options) => send(method, options))
-  )
-  return http
+      (http[method.toLowerCase()] = (options) => send(method, options)),
+  );
+  return http;
 }
 
 function API(name = 'untitled', debug = false) {
-  const { isQX, isLoon, isSurge, isNode, isJSBox, isScriptable } = ENV()
+  const { isQX, isLoon, isSurge, isNode, isJSBox, isScriptable } = ENV();
   return new (class {
     constructor(name, debug) {
-      this.name = name
-      this.debug = debug
+      this.name = name;
+      this.debug = debug;
 
-      this.http = HTTP()
-      this.env = ENV()
+      this.http = HTTP();
+      this.env = ENV();
 
       this.node = (() => {
         if (isNode) {
-          const fs = require('fs')
+          const fs = require('fs');
 
           return {
             fs,
-          }
+          };
         } else {
-          return null
+          return null;
         }
-      })()
-      this.initCache()
+      })();
+      this.initCache();
 
       const delay = (t, v) =>
         new Promise(function (resolve) {
-          setTimeout(resolve.bind(null, v), t)
-        })
+          setTimeout(resolve.bind(null, v), t);
+        });
 
       Promise.prototype.delay = function (t) {
         return this.then(function (v) {
-          return delay(t, v)
-        })
-      }
+          return delay(t, v);
+        });
+      };
     }
 
     // persistence
     // initialize cache
     initCache() {
-      if (isQX) this.cache = JSON.parse($prefs.valueForKey(this.name) || '{}')
+      if (isQX) this.cache = JSON.parse($prefs.valueForKey(this.name) || '{}');
       if (isLoon || isSurge)
-        this.cache = JSON.parse($persistentStore.read(this.name) || '{}')
+        this.cache = JSON.parse($persistentStore.read(this.name) || '{}');
 
       if (isNode) {
         // create a json for root cache
-        let fpath = 'root.json'
+        let fpath = 'root.json';
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
             fpath,
@@ -1034,13 +1034,13 @@ function API(name = 'untitled', debug = false) {
             {
               flag: 'wx',
             },
-            (err) => console.log(err)
-          )
+            (err) => console.log(err),
+          );
         }
-        this.root = {}
+        this.root = {};
 
         // create a json file with the given name if not exists
-        fpath = `${this.name}.json`
+        fpath = `${this.name}.json`;
         if (!this.node.fs.existsSync(fpath)) {
           this.node.fs.writeFileSync(
             fpath,
@@ -1048,22 +1048,22 @@ function API(name = 'untitled', debug = false) {
             {
               flag: 'wx',
             },
-            (err) => console.log(err)
-          )
-          this.cache = {}
+            (err) => console.log(err),
+          );
+          this.cache = {};
         } else {
           this.cache = JSON.parse(
-            this.node.fs.readFileSync(`${this.name}.json`)
-          )
+            this.node.fs.readFileSync(`${this.name}.json`),
+          );
         }
       }
     }
 
     // store cache
     persistCache() {
-      const data = JSON.stringify(this.cache, null, 2)
-      if (isQX) $prefs.setValueForKey(data, this.name)
-      if (isLoon || isSurge) $persistentStore.write(data, this.name)
+      const data = JSON.stringify(this.cache, null, 2);
+      if (isQX) $prefs.setValueForKey(data, this.name);
+      if (isLoon || isSurge) $persistentStore.write(data, this.name);
       if (isNode) {
         this.node.fs.writeFileSync(
           `${this.name}.json`,
@@ -1071,81 +1071,81 @@ function API(name = 'untitled', debug = false) {
           {
             flag: 'w',
           },
-          (err) => console.log(err)
-        )
+          (err) => console.log(err),
+        );
         this.node.fs.writeFileSync(
           'root.json',
           JSON.stringify(this.root, null, 2),
           {
             flag: 'w',
           },
-          (err) => console.log(err)
-        )
+          (err) => console.log(err),
+        );
       }
     }
 
     write(data, key) {
-      this.log(`SET ${key}`)
+      this.log(`SET ${key}`);
       if (key.indexOf('#') !== -1) {
-        key = key.substr(1)
+        key = key.substr(1);
         if (isSurge || isLoon) {
-          return $persistentStore.write(data, key)
+          return $persistentStore.write(data, key);
         }
         if (isQX) {
-          return $prefs.setValueForKey(data, key)
+          return $prefs.setValueForKey(data, key);
         }
         if (isNode) {
-          this.root[key] = data
+          this.root[key] = data;
         }
       } else {
-        this.cache[key] = data
+        this.cache[key] = data;
       }
-      this.persistCache()
+      this.persistCache();
     }
 
     read(key) {
-      this.log(`READ ${key}`)
+      this.log(`READ ${key}`);
       if (key.indexOf('#') !== -1) {
-        key = key.substr(1)
+        key = key.substr(1);
         if (isSurge || isLoon) {
-          return $persistentStore.read(key)
+          return $persistentStore.read(key);
         }
         if (isQX) {
-          return $prefs.valueForKey(key)
+          return $prefs.valueForKey(key);
         }
         if (isNode) {
-          return this.root[key]
+          return this.root[key];
         }
       } else {
-        return this.cache[key]
+        return this.cache[key];
       }
     }
 
     delete(key) {
-      this.log(`DELETE ${key}`)
+      this.log(`DELETE ${key}`);
       if (key.indexOf('#') !== -1) {
-        key = key.substr(1)
+        key = key.substr(1);
         if (isSurge || isLoon) {
-          return $persistentStore.write(null, key)
+          return $persistentStore.write(null, key);
         }
         if (isQX) {
-          return $prefs.removeValueForKey(key)
+          return $prefs.removeValueForKey(key);
         }
         if (isNode) {
-          delete this.root[key]
+          delete this.root[key];
         }
       } else {
-        delete this.cache[key]
+        delete this.cache[key];
       }
-      this.persistCache()
+      this.persistCache();
     }
 
     // notification
     notify(title, subtitle = '', content = '', options = {}) {
-      const openURL = options['open-url']
-      const mediaURL = options['media-url']
+      const openURL = options['open-url'];
+      const mediaURL = options['media-url'];
 
-      if (isQX) $notify(title, subtitle, content, options)
+      if (isQX) $notify(title, subtitle, content, options);
       if (isSurge) {
         $notification.post(
           title,
@@ -1153,74 +1153,74 @@ function API(name = 'untitled', debug = false) {
           content + `${mediaURL ? '\n多媒体:' + mediaURL : ''}`,
           {
             url: openURL,
-          }
-        )
+          },
+        );
       }
       if (isLoon) {
-        let opts = {}
-        if (openURL) opts['openUrl'] = openURL
-        if (mediaURL) opts['mediaUrl'] = mediaURL
+        let opts = {};
+        if (openURL) opts['openUrl'] = openURL;
+        if (mediaURL) opts['mediaUrl'] = mediaURL;
         if (JSON.stringify(opts) === '{}') {
-          $notification.post(title, subtitle, content)
+          $notification.post(title, subtitle, content);
         } else {
-          $notification.post(title, subtitle, content, opts)
+          $notification.post(title, subtitle, content, opts);
         }
       }
       if (isNode || isScriptable) {
         const content_ =
           content +
           (openURL ? `\n点击跳转: ${openURL}` : '') +
-          (mediaURL ? `\n多媒体: ${mediaURL}` : '')
+          (mediaURL ? `\n多媒体: ${mediaURL}` : '');
         if (isJSBox) {
-          const push = require('push')
+          const push = require('push');
           push.schedule({
             title: title,
             body: (subtitle ? subtitle + '\n' : '') + content_,
-          })
+          });
         } else {
-          console.log(`${title}\n${subtitle}\n${content_}\n\n`)
+          console.log(`${title}\n${subtitle}\n${content_}\n\n`);
         }
       }
     }
 
     // other helper functions
     log(msg) {
-      if (this.debug) console.log(`[${this.name}] LOG: ${this.stringify(msg)}`)
+      if (this.debug) console.log(`[${this.name}] LOG: ${this.stringify(msg)}`);
     }
 
     info(msg) {
-      console.log(`[${this.name}] INFO: ${this.stringify(msg)}`)
+      console.log(`[${this.name}] INFO: ${this.stringify(msg)}`);
     }
 
     error(msg) {
-      console.log(`[${this.name}] ERROR: ${this.stringify(msg)}`)
+      console.log(`[${this.name}] ERROR: ${this.stringify(msg)}`);
     }
 
     wait(millisec) {
-      return new Promise((resolve) => setTimeout(resolve, millisec))
+      return new Promise((resolve) => setTimeout(resolve, millisec));
     }
 
     done(value = {}) {
       if (isQX || isLoon || isSurge) {
-        $done(value)
+        $done(value);
       } else if (isNode && !isJSBox) {
         if (typeof $context !== 'undefined') {
-          $context.headers = value.headers
-          $context.statusCode = value.statusCode
-          $context.body = value.body
+          $context.headers = value.headers;
+          $context.statusCode = value.statusCode;
+          $context.body = value.body;
         }
       }
     }
 
     stringify(obj_or_str) {
       if (typeof obj_or_str === 'string' || obj_or_str instanceof String)
-        return obj_or_str
+        return obj_or_str;
       else
         try {
-          return JSON.stringify(obj_or_str, null, 2)
+          return JSON.stringify(obj_or_str, null, 2);
         } catch (err) {
-          return '[object Object]'
+          return '[object Object]';
         }
     }
-  })(name, debug)
+  })(name, debug);
 }
