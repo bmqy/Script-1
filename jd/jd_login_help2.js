@@ -57,14 +57,22 @@ function getRem(r) {
 function initBoxJSData() {
   const CookiesJD = JSON.parse($.read(CacheKey) || '[]');
 
-  const cookiesFormat = {};
-  CookiesJD.forEach((item) => {
-    let username = item.cookie.match(/pt_pin=(.+?);/)[1];
-    username = decodeURIComponent(username);
-    cookiesFormat[username] = item;
-  });
   let cookiesRemark = JSON.parse($.read(remark_key) || '[]');
   const keyword = ($.read(searchKey) || '').split(',');
+
+  const cookiesFormat = {};
+
+  cookiesRemark.forEach((item) => {
+    cookiesFormat[item.username] = item;
+  });
+
+  cookiesRemark = CookiesJD.map((item) => ({
+    ...item,
+    username: item.userName,
+    nickname: item.userName,
+    ...cookiesFormat[item.userName],
+  })).filter((item) => !!item.cookie);
+
   cookiesRemark = cookiesRemark.filter((item, index) => {
     return keyword[0]
       ? keyword.indexOf(`${index}`) > -1 ||
@@ -73,10 +81,6 @@ function initBoxJSData() {
           keyword.indexOf(item.status) > -1
       : true;
   });
-
-  cookiesRemark = cookiesRemark
-    .map((item) => ({ ...item, ...cookiesFormat[item.username] }))
-    .filter((item) => !!item.cookie);
 
   return cookiesRemark;
 }
@@ -89,7 +93,6 @@ function createStyle() {
 <style>
    #cus-mask .iconfont{
      font-size: ${getRem(0.2)};
-     margin: 0 ${getRem(0.03)};
    }
    #cus-mask p,#cus-mask span{
     padding: 0;
@@ -342,6 +345,11 @@ function createStyle() {
     box-shadow: 0 0 4px #91d5ff;
   }
 
+  .cus-now_active{
+    border-color: #a0d911;
+    box-shadow: unset;
+  }
+
   @keyframes flashred{
     0%{ box-shadow: 0 0 4px red}
     25%{ box-shadow: 0 0 6px red}
@@ -414,7 +422,7 @@ const accounts = cookiesRemark
     const className = item.wskey ? 'ant-tag-cyan' : 'ant-tag-magenta';
     const tag = item.wskey ? 'APP' : 'WEB';
     return `
-<div class="cus-avatar" data-value="${item.mobile}" data-name="${
+<div class="cus-avatar" data-value="${item.mobile || ''}" data-name="${
       item.username
     }">
   <div class="avatar_img" style="background-image: url(${
@@ -423,7 +431,7 @@ const accounts = cookiesRemark
   });color: #fff"></div>
   <div class="cususer_info">
      <p>${item.nickname}</p>
-     <span>${item.username}</span>
+     <span>${item.username === item.nickname ? '' : item.username}</span>
   </div>
   <span class="ant-tag ${className}">${tag}</span>
   <span class="cus-icon ${status ? '' : 'cus-err'}"></span>
@@ -433,9 +441,6 @@ const accounts = cookiesRemark
 
 // 生成 html 标签
 function createHTML() {
-  const fastBtn = isLogin
-    ? `<span class="abtn border-btn" id="fill-input">快速填充</span>`
-    : '<span class="abtn border-btn" id="clear-ck">清空登陆</span>';
   return `
 <div id="cus-mask" class="cus-mask" style="visibility:hidden">
   <div class="cus-mask_view">
@@ -462,24 +467,18 @@ function createHTML() {
     </div>
     <div class="cus-footer">
         <div class="btn-wrap" style="display: flex">
-          <span class="abtn" id="cus-mask-cancel">
-              取消
-          </span>
-          ${fastBtn}
-          <span class="abtn border-btn" id="copyCk">
-             复制CK
-          </span>
-          <span class="abtn btn-ok" id="cus-mask-ok" >
-              ${isLogin ? '直接登录' : '切换账号'}
-          </span>
+          <span class="abtn iconfont icon-cancel" id="cus-mask-cancel"></span>
+          <span class="abtn border-btn iconfont icon-dengchu" id="clear-ck"></span>
+          <span class="abtn border-btn iconfont icon-fuzhi" id="copyCk"></span>
+          <span class="abtn btn-ok iconfont ${
+            isLogin ? 'icon-denglu' : 'icon-zhuanhuan'
+          }" id="cus-mask-ok" ></span>
         </div>
     </div>
   </div>
 </div>
 <div class="cus-mask" id="jf_mask" style="visibility:hidden">
-    <div class="cus-mask_view">
-    
-    </div>
+    <div class="cus-mask_view"></div>
 </div>
 <div id="cus-tip" style="display: none;"></div>
 <div class="tool_bars" id="tool-bars">
@@ -490,6 +489,8 @@ function createHTML() {
   `;
 }
 
+const fillMobile = `<span class="abtn border-btn iconfont icon-shouye" id="fill-input"></span>`;
+
 // 生成脚本标签
 function createScript() {
   return `
@@ -497,16 +498,17 @@ function createScript() {
 <script>
   var pk = getCookie("pt_key");
   var pp = decodeURIComponent(getCookie("pt_pin"));
+  var isLogin = window.location.href.indexOf("/login/login")>-1;
   const head = document.getElementsByTagName("head")[0];
-  head.insertAdjacentHTML('beforeEnd', '<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" /><link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_2100531_qfs93fzyopn.css" charset="utf-8"/>');
+  head.insertAdjacentHTML('beforeEnd', '<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" /><link rel="stylesheet" type="text/css" href="//at.alicdn.com/t/font_2100531_wsbm3g7wlhg.css" charset="utf-8"/>');
 
   const jd_ck = ${JSON.stringify(cookiesRemark)};
   const boxjs_btn = document.querySelector("#boxjs");
-  const fill_btn = document.querySelector("#fill-input");
+  let fill_btn = document.querySelector("#fill-input");
   const copyCk_btn = document.querySelector("#copyCk");
   const cancel_btn = document.querySelector("#cus-mask-cancel");
   const ok_btn = document.querySelector("#cus-mask-ok");
-  const clear_btn = document.querySelector("#clear-ck");
+  let clear_btn = document.querySelector("#clear-ck");
   const tip_view = document.querySelector("#cus-tip");
   let avatarView = document.querySelectorAll(".cus-avatar");
   const usernameView = document.querySelector("#cus-username");
@@ -551,14 +553,14 @@ function createScript() {
   const className = item.wskey ? 'ant-tag-cyan' : 'ant-tag-magenta';
   const tag = item.wskey ? 'APP' : 'WEB';
   return \`
-<div class="cus-avatar" data-value="\${item.mobile}" data-name="\${item.username}">
+<div class="cus-avatar" data-value="\${item.mobile||''}" data-name="\${item.username}">
   <div class="avatar_img" style="background-image: url(\${
       item.avatar ||
       '//img11.360buyimg.com/jdphoto/s120x120_jfs/t21160/90/706848746/2813/d1060df5/5b163ef9N4a3d7aa6.png'
   });color: #fff"></div>
   <div class="cususer_info">
      <p>\${item.nickname}</p>
-     <span>\${item.username}</span>
+     <span>\${item.username===item.nickname?"":item.username}</span>
   </div>
   <span class="ant-tag \${className}">\${tag}</span>
   <span class="cus-icon \${status ? '' : 'cus-err'}"></span>
@@ -585,7 +587,11 @@ function createScript() {
    if(avatarItem && avatarItem.avatar){
      boxjs_btn.innerHTML = "<img src='"+ avatarItem.avatar +"' />";
    }
-   if(pk === "" || !pk)copyCk_btn.style.display="none";
+   if(pk === "" || !pk){
+    copyCk_btn.style.display="none";
+    clear_btn.style.display="none";
+   }
+   
    if(pp){
       usernameView.innerHTML= pp;
       var preIndex = null;
@@ -642,10 +648,13 @@ function createScript() {
 
     function registerClick(){
       avatarView = document.querySelectorAll(".cus-avatar");
+      fill_btn = document.querySelector("#fill-input");
+      clear_btn = document.querySelector("#clear-ck");
+
       avatarView.forEach(item=>{
        const username = item.getAttribute('data-name');
         if(username === pp){
-          item.className = "cus-avatar cus-active";
+          item.className = "cus-avatar cus-now_active";
           item.id = "jd_account";
         }
         item.onclick = function (){
@@ -653,10 +662,33 @@ function createScript() {
               item.className = "cus-avatar";
               item.id = "";
           })
+          const mobile = this.getAttribute('data-value');
           this.className = "cus-avatar cus-active";
           this.id = "jd_account";
+          $("#fill-input").remove();
+          if(mobile){
+            copyToClipMobile(mobile);
+            if(isLogin) $("#cus-mask-cancel").after(\`${fillMobile}\`);
+            registerClick();
+          }
         }
       })
+
+      if(fill_btn){
+        fill_btn.addEventListener('click',function(){
+          fillInput();
+        });
+      }
+
+      if(clear_btn){
+        clear_btn.addEventListener('click',function(){
+           sessionStorage.clear();
+           localStorage.clear();
+           setCookie('pt_key',"");
+           setCookie("pt_pin","");
+           window.location.reload();
+        })
+      }
     }
     
     registerClick();
@@ -677,24 +709,6 @@ function createScript() {
     copyCk_btn.addEventListener('click',function(){
       copyToClip();
     })
-
-
-
-    if(clear_btn){
-      clear_btn.addEventListener('click',function(){
-         sessionStorage.clear();
-         localStorage.clear();
-         setCookie('pt_key',"");
-         setCookie("pt_pin","");
-         window.location.reload();
-      })
-    }
-
-    if(fill_btn){
-      fill_btn.addEventListener('click',function(){
-        fillInput();
-      });
-    }
 
     function toast(message,time= 2000){
        tip_view.style.display = "block";
@@ -789,7 +803,21 @@ function createScript() {
     document.body.removeChild(_input);
     toast('复制成功');
   }
-  
+
+  function copyToClipMobile(mobile){
+    const _input = document.createElement('input');
+    _input.style.width="1px";
+    _input.style.height="1px";
+    _input.style.position="fixed";
+    _input.style.right="-1px";
+    document.body.prepend(_input);
+    _input.value = mobile;
+    _input.focus();
+    _input.select();
+    document.execCommand('copy');
+    _input.blur();
+    document.body.removeChild(_input);
+  }
 </script>
   `;
 }
