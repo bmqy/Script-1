@@ -57,14 +57,22 @@ function getRem(r) {
 function initBoxJSData() {
   const CookiesJD = JSON.parse($.read(CacheKey) || '[]');
 
-  const cookiesFormat = {};
-  CookiesJD.forEach((item) => {
-    let username = item.cookie.match(/pt_pin=(.+?);/)[1];
-    username = decodeURIComponent(username);
-    cookiesFormat[username] = item;
-  });
   let cookiesRemark = JSON.parse($.read(remark_key) || '[]');
   const keyword = ($.read(searchKey) || '').split(',');
+
+  const cookiesFormat = {};
+
+  cookiesRemark.forEach((item) => {
+    cookiesFormat[item.username] = item;
+  });
+
+  cookiesRemark = CookiesJD.map((item) => ({
+    ...item,
+    username: item.userName,
+    nickname: item.userName,
+    ...cookiesFormat[item.userName],
+  })).filter((item) => !!item.cookie);
+
   cookiesRemark = cookiesRemark.filter((item, index) => {
     return keyword[0]
       ? keyword.indexOf(`${index}`) > -1 ||
@@ -74,15 +82,11 @@ function initBoxJSData() {
       : true;
   });
 
-  cookiesRemark = cookiesRemark
-    .map((item) => ({ ...item, ...cookiesFormat[item.username] }))
-    .filter((item) => !!item.cookie);
-
   return cookiesRemark;
 }
 
 const cookiesRemark = initBoxJSData();
-
+console.log(cookiesRemark);
 // 生成标签样式
 function createStyle() {
   return `
@@ -423,7 +427,7 @@ const accounts = cookiesRemark
   });color: #fff"></div>
   <div class="cususer_info">
      <p>${item.nickname}</p>
-     <span>${item.username}</span>
+     <span>${item.username === item.nickname ? '' : item.username}</span>
   </div>
   <span class="ant-tag ${className}">${tag}</span>
   <span class="cus-icon ${status ? '' : 'cus-err'}"></span>
@@ -558,7 +562,7 @@ function createScript() {
   });color: #fff"></div>
   <div class="cususer_info">
      <p>\${item.nickname}</p>
-     <span>\${item.username}</span>
+     <span>\${item.username===item.nickname?"":item.username}</span>
   </div>
   <span class="ant-tag \${className}">\${tag}</span>
   <span class="cus-icon \${status ? '' : 'cus-err'}"></span>
