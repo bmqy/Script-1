@@ -1,3 +1,4 @@
+if (!$.ql_url.match(/^(http|https)/)) $.ql_url = `http://${$.ql_url}`;
 $.ql = {
   type: 'api',
   headers: {
