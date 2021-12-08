@@ -1,4 +1,4 @@
-if (!$.ql_url.match(/^(http|https)/)) $.ql_url = `http://${$.ql_url}`;
+
 $.ql = {
   type: 'api',
   headers: {
@@ -67,6 +67,7 @@ try {
 }
 
 $.ql_url = $.ql_config.ip;
+if (!$.ql_url.match(/^(http|https)/)) $.ql_url = `http://${$.ql_url}`;
 
 $.application = {
   client_id: $.ql_config.client_id,
