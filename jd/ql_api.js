@@ -1,3 +1,4 @@
+
 $.ql = {
   type: 'api',
   headers: {
@@ -7,7 +8,7 @@ $.ql = {
   disabled(ids) {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/${this.type}/envs/disable`,
+      url: `${$.ql_url}/${this.type}/envs/disable`,
       headers: this.headers,
       body: JSON.stringify(ids),
     };
@@ -16,7 +17,7 @@ $.ql = {
   enabled(ids) {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/${this.type}/envs/enable`,
+      url: `${$.ql_url}/${this.type}/envs/enable`,
       headers: this.headers,
       body: JSON.stringify(ids),
     };
@@ -25,7 +26,7 @@ $.ql = {
   delete(ids) {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/${this.type}/envs`,
+      url: `${$.ql_url}/${this.type}/envs`,
       headers: this.headers,
       body: JSON.stringify(ids),
     };
@@ -34,7 +35,7 @@ $.ql = {
   add(records) {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/${this.type}/envs`,
+      url: `${$.ql_url}/${this.type}/envs`,
       headers: this.headers,
       body: JSON.stringify(records),
     };
@@ -43,7 +44,7 @@ $.ql = {
   edit(records) {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/${this.type}/envs`,
+      url: `${$.ql_url}/${this.type}/envs`,
       headers: this.headers,
       body: JSON.stringify(records),
     };
@@ -52,7 +53,7 @@ $.ql = {
   select(searchValue = 'JD_COOKIE') {
     if (!this.headers.Authorization) return;
     const opt = {
-      url: `http://${$.ql_url}/${this.type}/envs?searchValue=${searchValue}`,
+      url: `${$.ql_url}/${this.type}/envs?searchValue=${searchValue}`,
       headers: this.headers,
     };
     return $.http.get(opt).then((response) => JSON.parse(response.body));
@@ -66,6 +67,7 @@ try {
 }
 
 $.ql_url = $.ql_config.ip;
+if (!$.ql_url.match(/^(http|https)/)) $.ql_url = `http://${$.ql_url}`;
 
 $.application = {
   client_id: $.ql_config.client_id,
@@ -88,7 +90,7 @@ if ($.ql_config.is_pwd === 'true') {
   if ($.ql_account.username && $.ql_account.password) {
     $.ql.login = async () => {
       const options = {
-        url: `http://${$.ql_url}/api/login`,
+        url: `${$.ql_url}/api/login`,
         body: JSON.stringify($.ql_account),
         headers: {
           'Content-Type': `application/json;charset=UTF-8`,
@@ -113,7 +115,7 @@ if ($.ql_config.is_pwd === 'true') {
   if ($.application.client_id && $.application.client_secret) {
     $.ql.login = async () => {
       const options = {
-        url: `http://${$.ql_url}/open/auth/token?client_id=${$.application.client_id}&client_secret=${$.application.client_secret}`,
+        url: `${$.ql_url}/open/auth/token?client_id=${$.application.client_id}&client_secret=${$.application.client_secret}`,
         headers: {
           'Content-Type': `application/json;charset=UTF-8`,
         },
