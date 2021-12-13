@@ -55,8 +55,10 @@ cookiesRemark.forEach((item) => {
     const status = response.retcode === '0' ? '正常' : '未登录';
 
     let avatar = '',
-      nickname = '';
+      nickname = '',
+      isPlusVip = 0;
     if (response.retcode === '0') {
+      isPlusVip = response.data.userInfo.isPlusVip;
       avatar = response.data.userInfo.baseInfo.headImageUrl;
       nickname = response.data.userInfo.baseInfo.nickname;
       console.log('帐号昵称：' + nickname);
@@ -76,6 +78,7 @@ cookiesRemark.forEach((item) => {
       mobile: '',
       avatar,
       ...ckRemarkFormat[username],
+      isPlusVip,
       status,
       remark: newRemark,
     };
