@@ -186,12 +186,12 @@
       "repo": "https://github.com/dompling/Script/blob/master/jd/ql_cookie_sync.js",
       "scripts": [
         {
-          "name": "BoxJS同步到青龙(京东 Ck)",
-          "script": "https://raw.githubusercontent.com/dompling/Script/master/jd/ql_cookie_sync.js"
-        },
-        {
           "name": "青龙同步到BoxJS(京东 Ck)",
           "script": "https://raw.githubusercontent.com/dompling/Script/master/jd/ql_sync_box.js"
+        },
+        {
+          "name": "BoxJS同步到青龙(京东 Ck)",
+          "script": "https://raw.githubusercontent.com/dompling/Script/master/jd/ql_cookie_sync.js"
         },
         {
           "name": "备份环境变量",
