@@ -90,7 +90,7 @@ if ($.ql_config.is_pwd === 'true') {
   if ($.ql_account.username && $.ql_account.password) {
     $.ql.login = async () => {
       const options = {
-        url: `${$.ql_url}/api/login`,
+        url: `${$.ql_url}/api/user/login`,
         body: JSON.stringify($.ql_account),
         headers: {
           'Content-Type': `application/json;charset=UTF-8`,
