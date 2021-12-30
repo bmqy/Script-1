@@ -96,6 +96,7 @@ if ($.ql_config.is_pwd === 'true') {
           'Content-Type': `application/json;charset=UTF-8`,
         },
       };
+      
       let response = await $.http.post(options);
       response = JSON.parse(response.body);
       if (response.code === 200) {
