@@ -126,7 +126,8 @@ function createStyle() {
   .cus-mask_view{
     width: 85%;
     background: #fff;
-    border-radius: ${getRem(0.1)};
+    border-radius: ${getRem(0.25)};
+    overflow: hidden;
     position: relative;
     top: 50%;
     left: 50%;
@@ -233,7 +234,7 @@ function createStyle() {
   #account_list{
     border: 4px solid #f7bb10;
     border-radius: ${getRem(0.3)};
-    max-height: ${getRem(3.19)};
+    max-height: ${getRem(3.69)};
     min-height: ${getRem(1.98)};
     overflow-x: hidden;
     overflow-y: scroll;
