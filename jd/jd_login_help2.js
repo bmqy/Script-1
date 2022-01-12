@@ -7,11 +7,13 @@ const $ = new API('jd_ck_remark'),
 ;($.url = $request.url), ($.html = $response.body)
 
 const cookieIndex = $.read(`#CookieIndex`) || 0
+
 try {
-  ;($.html.includes && $.html.includes('</html>')) || $.done({ body: $.html })
+  ;($.html.includes && $.html.includes('</body>')) || $.done({ body: $.html })
 } catch (n) {
   $.done()
 }
+
 const isLogin = $.url.indexOf('/login/login') > -1
 function getRem(n) {
   return `${25 * n}vw`
@@ -884,15 +886,15 @@ function createScript() {
 }
 
 ;(async () => {
-  if ($.html.indexOf('<html') > -1) {
-    let jfScript = ``
+  if ($.html.indexOf('</body>') > -1) {
+    const jfScript = ''
+
     console.log(`重写URL：${$.url}`)
     const n = createStyle(),
       e = createScript(),
       t = createHTML(),
       i = `\n${n}\n${t}\n${e}\n${jfScript}`
-
-    $.html = $.html.replace(/(<\/html>)/, `${i} </html>`)
+    $.html = $.html.replace(/(<body)/, `${i} <body`)
   }
 })()
   .catch((n) => {
