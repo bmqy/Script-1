@@ -40,10 +40,10 @@ async function getScriptUrl() {
   await $.ql.login();
 
   const cookiesRes = await $.ql.select();
-  const ids = cookiesRes.data.map((item) => item._id);
+  const ids = cookiesRes.data.map((item) => item.id);
   await $.ql.delete(ids);
   const wskeyRes = await $.ql.select('JD_WSCK');
-  await $.ql.delete(wskeyRes.data.map((item) => item._id));
+  await $.ql.delete(wskeyRes.data.map((item) => item.id));
   $.log('清空 cookie 和 wskey');
 
   const addData = [];
@@ -81,7 +81,7 @@ async function getScriptUrl() {
   }
 
   if (_ids.length > 0) {
-    const ids = _ids.map((item) => item._id);
+    const ids = _ids.map((item) => item.id);
     console.log(
       `过期账号：${_ids
         .map((item) => item.remarks || getUsername(item.value))

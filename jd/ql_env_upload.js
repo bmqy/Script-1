@@ -29,7 +29,7 @@ async function getScriptUrl() {
   await $.ql.login();
 
   const response = await $.ql.select('');
-  const delIds = response.data.map((item) => item._id);
+  const delIds = response.data.map((item) => item.id);
   await $.ql.delete(delIds);
   console.log(`=======================清空环境变量=======================`);
   await $.ql.add(
