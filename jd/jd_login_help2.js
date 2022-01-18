@@ -622,7 +622,7 @@ function createScript() {
   </div>
 
   <div class="cususer_info">
-     <p>\${decodeURIComponent(decodeURIComponent)}</p>
+     <p>\${decodeURIComponent(item.nickname)}</p>
      <span><b class="ant-ribbon">\${index + 1}</b>\${decodeURIComponent(item.username)}</span>
   </div>
   <span class="ant-tag \${className}">\${tag}</span>
@@ -887,7 +887,6 @@ function createScript() {
 
 ;(async () => {
   if ($.html.indexOf('</body>') > -1) {
-    const jfScript = ''
 
     console.log(`重写URL：${$.url}`)
     const n = createStyle(),
